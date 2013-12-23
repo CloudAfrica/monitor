@@ -21,23 +21,41 @@ func main() {
 	for res := range ch {
 		fmt.Println(res)
 	}
-
 }
 
 func checkUrls(urls []string, c chan string) {
+  q := make(chan bool)
 	for _, v := range urls {
-		start := time.Now()
-
-		_, err := http.Get(v)
-
-		if err != nil {
-			msg := v + " Error: " + err.Error()
-			c <- msg
-		} else {
-			lag := time.Since(start)
-			msg := v + " OK : " + lag.String()
-			c <- msg
-		}
+    go checkUrl(v, c, q)
 	}
-	close(c)
+
+  i := 0
+
+  for res := range q {
+    if res {
+      i++
+    }
+
+    if i == len(urls) {
+      close(q)
+      close(c)
+    }
+  }
+}
+
+func checkUrl(url string, c chan string, q chan bool) {
+  start := time.Now()
+
+  _, err := http.Get(url)
+
+  if err != nil {
+    msg := url + " Error: " + err.Error()
+    c <- msg
+  } else {
+    lag := time.Since(start)
+    msg := url + " OK : " + lag.String()
+    c <- msg
+  }
+
+  q <- true
 }
