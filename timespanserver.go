@@ -2,8 +2,9 @@ package main
 
 import (
   "fmt"
-  "io/ioutil"
   "net/http"
+  "os"
+  "io"
 )
 
 type TimeSpan struct {
@@ -11,10 +12,22 @@ type TimeSpan struct {
   Time  string
 }
 
-func (p *TimeSpan) save() error {
-  csvContent = string(ioutil.ReadFile("timeSpans.csv"))
-  csvContent += timeSpanItem.destination + "," + string(timeSpanItem.time) + "\r\n"
-  ioutil.WriteFile(byte("timeSpans.csv", csvLine, 0600))
+func (p *TimeSpan) save() {
+  f, err := os.OpenFile("timespans.csv", os.O_APPEND, 0666)
+  if err != nil {
+    fmt.Println("Error opening file.")
+    return
+  }
+
+  fmt.Println("Destination:" + p.Destination)
+  fmt.Println("Time:" + p.Time)
+
+  _, err2 := io.WriteString(f, p.Destination + "," + p.Time + "\r\n")
+  if err2 != nil {
+    fmt.Println("Error saving file.")
+    return
+  }
+  f.Close()
 }
 
 func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +35,7 @@ func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
     time := r.FormValue("time")
     timeSpanItem := &TimeSpan{Destination: destination, Time: time}
     timeSpanItem.save()
+    fmt.Fprintf(w, "Time span saved.")
 }
 
 func main() {
