@@ -22,8 +22,7 @@ func (p *TimeSpan) save() error {
   fmt.Println("Destination: " + p.Destination)
   fmt.Println("Time: " + p.Time)
 
-  _, err2 := io.WriteString(f, p.Destination + "," + p.Time + "\r\n")
-  if err2 != nil {
+  if _, err2 := io.WriteString(f, p.Destination + "," + p.Time + "\r\n"); err2 != nil {
     fmt.Println("Error saving file: ", err2)
     return err2
   }
@@ -37,9 +36,13 @@ func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
   if destination != "" && time != "" {
     timeSpanItem := &TimeSpan{Destination: destination, Time: time}
     err := timeSpanItem.save()
-    if err == nil { fmt.Fprintf(w, "Time span saved.") } else { fmt.Fprintf(w, "Time span could not be saved:", err)}
+    if err == nil {
+      fmt.Fprintf(w, "Time span saved.")
+    } else {
+      http.Error(w, "Time span could not be saved.", 500)
+    }
   } else {
-    fmt.Fprintf(w, "Time span could not be saved.")
+    http.Error(w, "Time span could not be saved.", 500)
   }
 }
 
