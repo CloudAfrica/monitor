@@ -41,7 +41,7 @@ func removeAllSpaces(s string) string {
  matcher := regexp.MustCompile(`\n+|\r+`)
 
  s = matcher.ReplaceAllString(s, "")
- s = strings.Replace(s, " ", "", -1)
+ //s = strings.Replace(s, " ", "", -1)
  return s
 }
 
@@ -64,10 +64,10 @@ func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnProbesHandler(w http.ResponseWriter, r *http.Request) {
-  if sitesJson, err := ioutil.ReadFile("sites.txt"); err != nil {
+  if probesJson, err := ioutil.ReadFile("sites.txt"); err != nil {
     http.Error(w, "Could not return a list of sites to probe.", 500)
   } else {
-    fmt.Fprintf(w, removeAllSpaces(string(sitesJson)))
+    fmt.Fprintf(w, removeAllSpaces(string(probesJson)))
   }
 }
 
