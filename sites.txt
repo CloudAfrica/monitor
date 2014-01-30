@@ -1,0 +1,18 @@
+[
+  {
+    "name" : "Cloud Africa",
+    "type" : "http",
+    "subtype" : "get",
+    "address" : "https://www.cloudafrica.net/"
+  },  {
+    "name" : "SensePost",
+    "type" : "http",
+    "subtype" : "get",
+    "address" : "https://www.sensepost.com/"
+  },  {
+    "name" : "Afrihost",
+    "type" : "http",
+    "subtype" : "get",
+    "address" : "http://www.afrihost.co.za/"
+  }
+]
