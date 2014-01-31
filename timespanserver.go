@@ -5,12 +5,19 @@ import (
   "net/http"
   "os"
   "io"
+  "io/ioutil"
+  "regexp"
+  "strings"
 )
+
+// Variables
 
 type TimeSpan struct {
   Destination string
-  Time  string
+  Time string
 }
+
+// Helper functions
 
 func (p *TimeSpan) save() error {
   f, err := os.OpenFile("timespans.csv", os.O_RDWR|os.O_APPEND, 0660)
@@ -30,6 +37,16 @@ func (p *TimeSpan) save() error {
   return nil
 }
 
+func removeAllSpaces(s string) string {
+ matcher := regexp.MustCompile(`\n+|\r+`)
+
+ s = matcher.ReplaceAllString(s, "")
+ //s = strings.Replace(s, " ", "", -1)
+ return s
+}
+
+// HTTP Handler functions
+
 func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
   destination := r.FormValue("destination")
   time := r.FormValue("time")
@@ -46,7 +63,16 @@ func saveTimeSpanHandler(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+func returnProbesHandler(w http.ResponseWriter, r *http.Request) {
+  if probesJson, err := ioutil.ReadFile("sites.txt"); err != nil {
+    http.Error(w, "Could not return a list of sites to probe.", 500)
+  } else {
+    fmt.Fprintf(w, removeAllSpaces(string(probesJson)))
+  }
+}
+
 func main() {
     http.HandleFunc("/savetimespan", saveTimeSpanHandler)
+    http.HandleFunc("/probes", returnProbesHandler)
     http.ListenAndServe(":8080", nil)
 }
